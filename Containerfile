@@ -73,10 +73,9 @@ RUN sed -i 's|^HOME=.*|HOME=/var/home|' /etc/default/useradd && \
     ln -sT var/mnt /mnt && \
     ln -sT var/home /home && \
     ln -sT ../var/usrlocal /usr/local && \
-    mkdir -p /var/usrlocal/bin && \
     echo "$(for dir in opt home srv mnt usrlocal ; do echo "d /var/$dir 0755 root root -" ; done)" | \
       tee -a /usr/lib/tmpfiles.d/bootc-base-dirs.conf && \
-    printf "d /var/roothome 0700 root root -\nd /run/media 0755 root root -" | \
+    printf "d /var/roothome 0700 root root -\nd /run/media 0755 root root -\nd /var/usrlocal/bin 0755 root root -\n" | \
       tee -a /usr/lib/tmpfiles.d/bootc-base-dirs.conf && \
     printf '[composefs]\nenabled = yes\n[sysroot]\nreadonly = true\n' | \
       tee /usr/lib/ostree/prepare-root.conf
@@ -152,6 +151,7 @@ RUN pacman -Syu --noconfirm \
     ripgrep \
     imagemagick \
     playerctl \
+    otf-font-awesome \
     && pacman -S --clean --noconfirm
 
 # Omarchy
@@ -172,7 +172,7 @@ RUN mkdir -p \
     cp -a /usr/share/omarchy/themes /etc/skel/.local/share/omarchy/themes && \
     cp -a /usr/share/omarchy/bin /etc/skel/.local/share/omarchy/bin && \
     cp -a /usr/share/omarchy/default/wayland-sessions/. /usr/share/wayland-sessions/ && \
-    find /usr/share/omarchy/bin -type f -executable -exec ln -sf {} /usr/local/bin/ \; && \
+    find /usr/share/omarchy/bin -type f -executable -exec ln -sf {} /usr/bin/ \; && \
     cp -a /usr/share/omarchy/default/sddm/omarchy /usr/share/sddm/themes/omarchy
 
 # Set default Omarchy theme (generates waybar.css, foot.ini, etc.)
