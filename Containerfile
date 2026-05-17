@@ -203,8 +203,7 @@ RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime && \
 # First boot setup (user creation, keyboard layout, timezone)
 COPY archbit-firstboot.sh /usr/bin/archbit-firstboot
 COPY archbit-firstboot.service /usr/lib/systemd/system/archbit-firstboot.service
-RUN chmod +x /usr/bin/archbit-firstboot && \
-    systemctl enable archbit-firstboot.service
+RUN chmod +x /usr/bin/archbit-firstboot
 
 # Disk installer (for installing from live USB to internal disk)
 COPY archbit-install.sh /usr/bin/archbit-install
@@ -232,11 +231,19 @@ RUN mkdir -p /usr/lib/sysusers.d /usr/lib/tmpfiles.d && \
     printf 'd /var/lib/sddm 0755 sddm sddm -\n' > /usr/lib/tmpfiles.d/archbit-sddm.conf
 
 # Enable services and set graphical target
-RUN systemctl enable NetworkManager && \
-    systemctl enable sddm && \
-    systemctl enable seatd && \
-    systemctl enable qemu-guest-agent && \
-    systemctl set-default graphical.target
+# Use /usr/lib symlinks instead of systemctl enable — /etc symlinks
+# are lost during ostree/bootc deployment
+RUN mkdir -p \
+      /usr/lib/systemd/system/multi-user.target.wants \
+      /usr/lib/systemd/system/network-online.target.wants \
+      /usr/lib/systemd/system/sockets.target.wants && \
+    ln -sf ../NetworkManager.service /usr/lib/systemd/system/multi-user.target.wants/ && \
+    ln -sf ../NetworkManager-dispatcher.service /usr/lib/systemd/system/dbus-org.freedesktop.nm-dispatcher.service && \
+    ln -sf ../NetworkManager-wait-online.service /usr/lib/systemd/system/network-online.target.wants/ && \
+    ln -sf ../seatd.service /usr/lib/systemd/system/multi-user.target.wants/ && \
+    ln -sf ../archbit-firstboot.service /usr/lib/systemd/system/multi-user.target.wants/ && \
+    ln -sf sddm.service /usr/lib/systemd/system/display-manager.service && \
+    ln -sf graphical.target /usr/lib/systemd/system/default.target
 
 # bootc metadata
 LABEL containers.bootc=1
