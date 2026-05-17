@@ -80,11 +80,6 @@ RUN sed -i 's|^HOME=.*|HOME=/var/home|' /etc/default/useradd && \
     printf '[composefs]\nenabled = yes\n[sysroot]\nreadonly = true\n' | \
       tee /usr/lib/ostree/prepare-root.conf
 
-# VM / Wayland fixes
-ENV WLR_NO_HARDWARE_CURSORS=1
-ENV LIBGL_ALWAYS_SOFTWARE=1
-ENV XDG_SESSION_TYPE=wayland
-
 # Desktop + tooling
 RUN pacman -Syu --noconfirm \
     sudo \
@@ -138,31 +133,30 @@ RUN pacman -Syu --noconfirm \
     slurp \
     wl-clipboard \
     uwsm \
+    hypridle \
+    fcitx5 \
     && pacman -S --clean --noconfirm
 
 # Omarchy
-ARG OMARCHY_COMMIT=82f99928d06eb9cbae37641f77f75c59c1459404
+ARG OMARCHY_COMMIT=dev
 
 RUN git clone https://github.com/basecamp/omarchy.git /usr/share/omarchy && \
     cd /usr/share/omarchy && \
     git checkout "$OMARCHY_COMMIT" && \
     rm -rf .git
 
-# Install Omarchy configs
+# Install Omarchy configs (Lua-based Hyprland configuration)
 RUN mkdir -p \
       /etc/skel/.config \
-      /usr/local/bin \
+      /etc/skel/.local/share/omarchy \
       /usr/share/wayland-sessions && \
     cp -a /usr/share/omarchy/config/. /etc/skel/.config/ && \
-    cp -a /usr/share/omarchy/default/hypr /etc/skel/.config/ && \
-    cp -a /usr/share/omarchy/default/waybar /etc/skel/.config/ && \
-    cp -a /usr/share/omarchy/default/mako /etc/skel/.config/ && \
-    cp -a /usr/share/omarchy/default/alacritty /etc/skel/.config/ || true && \
-    cp -a /usr/share/omarchy/default/kitty /etc/skel/.config/ || true && \
-    cp -a /usr/share/omarchy/default/foot /etc/skel/.config/ || true && \
-    cp -a /usr/share/omarchy/default/wayland-sessions/. /usr/share/wayland-sessions/ || true && \
-    cp -a /usr/share/omarchy/themes /usr/share/omarchy-themes && \
-    find /usr/share/omarchy/bin -type f -executable -exec ln -sf {} /usr/local/bin/ \;
+    cp -a /usr/share/omarchy/default /etc/skel/.local/share/omarchy/default && \
+    cp -a /usr/share/omarchy/themes /etc/skel/.local/share/omarchy/themes && \
+    cp -a /usr/share/omarchy/bin /etc/skel/.local/share/omarchy/bin && \
+    cp -a /usr/share/omarchy/default/wayland-sessions/. /usr/share/wayland-sessions/ && \
+    find /usr/share/omarchy/bin -type f -executable -exec ln -sf {} /usr/local/bin/ \; && \
+    cp -a /usr/share/omarchy/default/sddm/omarchy /usr/share/sddm/themes/omarchy
 
 # User
 RUN mkdir -p /etc/sudoers.d && \
@@ -182,6 +176,10 @@ RUN groupadd -f sddm && \
       sddm && \
     mkdir -p /var/lib/sddm && \
     chown -R sddm:sddm /var/lib/sddm
+
+RUN mkdir -p /usr/lib/sysusers.d /usr/lib/tmpfiles.d && \
+    printf 'g sddm - - -\nu sddm - "SDDM greeter user" /var/lib/sddm /usr/bin/nologin\n' > /usr/lib/sysusers.d/archbit-sddm.conf && \
+    printf 'd /var/lib/sddm 0755 sddm sddm -\n' > /usr/lib/tmpfiles.d/archbit-sddm.conf
 
 # Enable services
 RUN systemctl enable NetworkManager && \
