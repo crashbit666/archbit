@@ -102,16 +102,19 @@ RUN pacman -Syu --noconfirm \
     man-pages \
     xdg-user-dirs \
     hyprland \
+    hyprlock \
+    hypridle \
+    hyprsunset \
+    hyprpicker \
     waybar \
     alacritty \
     kitty \
     foot \
-    wofi \
     mako \
     swaybg \
-    swaylock \
     xdg-desktop-portal \
     xdg-desktop-portal-hyprland \
+    xdg-desktop-portal-gtk \
     pipewire \
     pipewire-pulse \
     wireplumber \
@@ -120,6 +123,7 @@ RUN pacman -Syu --noconfirm \
     seatd \
     sddm \
     qt6-wayland \
+    ttf-jetbrains-mono-nerd \
     noto-fonts \
     noto-fonts-emoji \
     ttf-dejavu \
@@ -133,8 +137,20 @@ RUN pacman -Syu --noconfirm \
     slurp \
     wl-clipboard \
     uwsm \
-    hypridle \
     fcitx5 \
+    gum \
+    jq \
+    socat \
+    starship \
+    zoxide \
+    btop \
+    bat \
+    eza \
+    fd \
+    fzf \
+    ripgrep \
+    imagemagick \
+    playerctl \
     && pacman -S --clean --noconfirm
 
 # Omarchy
