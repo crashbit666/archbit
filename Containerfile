@@ -102,7 +102,7 @@ RUN pacman -Syu --noconfirm \
     grim \
     slurp \
     wl-clipboard \
-    walker \
+    # walker és AUR, no repo oficial \
     uwsm \
     && pacman -S --clean --noconfirm
 
@@ -132,6 +132,11 @@ RUN mkdir -p /etc/sudoers.d && \
     passwd -l root && \
     echo '%wheel ALL=(ALL) ALL' > /etc/sudoers.d/wheel && \
     chmod 0440 /etc/sudoers.d/wheel
+
+RUN getent group sddm || groupadd -r sddm && \
+    getent passwd sddm || useradd -r -g sddm -d /var/lib/sddm -s /usr/bin/nologin sddm && \
+    mkdir -p /var/lib/sddm && \
+    chown -R sddm:sddm /var/lib/sddm
 
 RUN systemctl enable NetworkManager && \
     systemctl enable sddm
