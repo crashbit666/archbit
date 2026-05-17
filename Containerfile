@@ -1,13 +1,24 @@
 FROM docker.io/archlinux/archlinux:latest
 
-RUN grep "= */var" /etc/pacman.conf | sed "/= *\/var/s/.*=// ; s/ //" | xargs -n1 sh -c 'mkdir -p "/usr/lib/sysimage/$(dirname $(echo $1 | sed "s@/var/@@"))" && mv -v "$1" "/usr/lib/sysimage/$(echo "$1" | sed "s@/var/@@")"' '' && \
-    sed -i -e "/= *\/var/ s/^#//" -e "s@= */var@= /usr/lib/sysimage@g" -e "/DownloadUser/d" /etc/pacman.conf
+# Move pacman mutable data into /usr/lib/sysimage
+RUN grep "= */var" /etc/pacman.conf | \
+    sed "/= *\/var/s/.*=// ; s/ //" | \
+    xargs -n1 sh -c 'mkdir -p "/usr/lib/sysimage/$(dirname $(echo $1 | sed "s@/var/@@"))" && mv -v "$1" "/usr/lib/sysimage/$(echo "$1" | sed "s@/var/@@")"' '' && \
+    sed -i \
+      -e "/= *\/var/ s/^#//" \
+      -e "s@= */var@= /usr/lib/sysimage@g" \
+      -e "/DownloadUser/d" \
+      /etc/pacman.conf
 
+# Re-enable docs/locales
 RUN sed -i 's/^[[:space:]]*NoExtract/#&/' /etc/pacman.conf
 
-RUN --mount=type=tmpfs,dst=/tmp --mount=type=cache,dst=/usr/lib/sysimage/cache/pacman \
+# Fix locales missing from container image
+RUN --mount=type=tmpfs,dst=/tmp \
+    --mount=type=cache,dst=/usr/lib/sysimage/cache/pacman \
     pacman -Sy glibc --noconfirm
 
+# Base immutable system
 RUN pacman -Syu --noconfirm \
     base \
     cpio \
@@ -27,18 +38,33 @@ RUN pacman -Syu --noconfirm \
     shadow \
     && pacman -S --clean --noconfirm
 
-RUN --mount=type=tmpfs,dst=/tmp --mount=type=tmpfs,dst=/root \
+# Install bootc
+RUN --mount=type=tmpfs,dst=/tmp \
+    --mount=type=tmpfs,dst=/root \
     pacman -S --noconfirm make git rust go-md2man && \
-    git clone "https://github.com/bootc-dev/bootc.git" /tmp/bootc && \
+    git clone https://github.com/bootc-dev/bootc.git /tmp/bootc && \
     make -C /tmp/bootc bin install-all && \
-    printf "systemdsystemconfdir=/etc/systemd/system\nsystemdsystemunitdir=/usr/lib/systemd/system\n" | tee /usr/lib/dracut/dracut.conf.d/30-bootcrew-fix-bootc-module.conf && \
-    printf 'reproducible=yes\nhostonly=no\ncompress=zstd\nadd_dracutmodules+=" ostree bootc "' | tee "/usr/lib/dracut/dracut.conf.d/30-bootcrew-bootc-container-build.conf" && \
+    printf "systemdsystemconfdir=/etc/systemd/system\nsystemdsystemunitdir=/usr/lib/systemd/system\n" | \
+      tee /usr/lib/dracut/dracut.conf.d/30-bootcrew-fix-bootc-module.conf && \
+    printf 'reproducible=yes\nhostonly=no\ncompress=zstd\nadd_dracutmodules+=" ostree bootc "' | \
+      tee /usr/lib/dracut/dracut.conf.d/30-bootcrew-bootc-container-build.conf && \
     dracut --force "$(find /usr/lib/modules -maxdepth 1 -type d | grep -v -E "*.img" | tail -n 1)/initramfs.img" && \
     pacman -Rns --noconfirm make git rust go-md2man && \
     pacman -S --clean --noconfirm
 
-RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd" && \
-    rm -rf /boot /home /root /usr/local /srv /opt /mnt /var /usr/lib/sysimage/log /usr/lib/sysimage/cache/pacman/pkg && \
+# Immutable filesystem layout
+RUN sed -i 's|^HOME=.*|HOME=/var/home|' /etc/default/useradd && \
+    rm -rf \
+      /boot \
+      /home \
+      /root \
+      /usr/local \
+      /srv \
+      /opt \
+      /mnt \
+      /var \
+      /usr/lib/sysimage/log \
+      /usr/lib/sysimage/cache/pacman/pkg && \
     mkdir -p /sysroot /boot /usr/lib/ostree /var && \
     ln -sT sysroot/ostree /ostree && \
     ln -sT var/roothome /root && \
@@ -47,10 +73,19 @@ RUN sed -i 's|^HOME=.*|HOME=/var/home|' "/etc/default/useradd" && \
     ln -sT var/mnt /mnt && \
     ln -sT var/home /home && \
     ln -sT ../var/usrlocal /usr/local && \
-    echo "$(for dir in opt home srv mnt usrlocal ; do echo "d /var/$dir 0755 root root -" ; done)" | tee -a "/usr/lib/tmpfiles.d/bootc-base-dirs.conf" && \
-    printf "d /var/roothome 0700 root root -\nd /run/media 0755 root root -" | tee -a "/usr/lib/tmpfiles.d/bootc-base-dirs.conf" && \
-    printf '[composefs]\nenabled = yes\n[sysroot]\nreadonly = true\n' | tee "/usr/lib/ostree/prepare-root.conf"
+    echo "$(for dir in opt home srv mnt usrlocal ; do echo "d /var/$dir 0755 root root -" ; done)" | \
+      tee -a /usr/lib/tmpfiles.d/bootc-base-dirs.conf && \
+    printf "d /var/roothome 0700 root root -\nd /run/media 0755 root root -" | \
+      tee -a /usr/lib/tmpfiles.d/bootc-base-dirs.conf && \
+    printf '[composefs]\nenabled = yes\n[sysroot]\nreadonly = true\n' | \
+      tee /usr/lib/ostree/prepare-root.conf
 
+# VM / Wayland fixes
+ENV WLR_NO_HARDWARE_CURSORS=1
+ENV LIBGL_ALWAYS_SOFTWARE=1
+ENV XDG_SESSION_TYPE=wayland
+
+# Desktop + tooling
 RUN pacman -Syu --noconfirm \
     sudo \
     networkmanager \
@@ -89,7 +124,6 @@ RUN pacman -Syu --noconfirm \
     polkit-gnome \
     seatd \
     sddm \
-    qt5-wayland \
     qt6-wayland \
     noto-fonts \
     noto-fonts-emoji \
@@ -98,14 +132,15 @@ RUN pacman -Syu --noconfirm \
     mesa \
     mesa-utils \
     vulkan-virtio \
+    qemu-guest-agent \
     xorg-xwayland \
     grim \
     slurp \
     wl-clipboard \
-    # walker és AUR, no repo oficial \
     uwsm \
     && pacman -S --clean --noconfirm
 
+# Omarchy
 ARG OMARCHY_COMMIT=82f99928d06eb9cbae37641f77f75c59c1459404
 
 RUN git clone https://github.com/basecamp/omarchy.git /usr/share/omarchy && \
@@ -113,7 +148,11 @@ RUN git clone https://github.com/basecamp/omarchy.git /usr/share/omarchy && \
     git checkout "$OMARCHY_COMMIT" && \
     rm -rf .git
 
-RUN mkdir -p /etc/skel/.config /usr/local/bin /usr/share/wayland-sessions && \
+# Install Omarchy configs
+RUN mkdir -p \
+      /etc/skel/.config \
+      /usr/local/bin \
+      /usr/share/wayland-sessions && \
     cp -a /usr/share/omarchy/config/. /etc/skel/.config/ && \
     cp -a /usr/share/omarchy/default/hypr /etc/skel/.config/ && \
     cp -a /usr/share/omarchy/default/waybar /etc/skel/.config/ && \
@@ -121,11 +160,11 @@ RUN mkdir -p /etc/skel/.config /usr/local/bin /usr/share/wayland-sessions && \
     cp -a /usr/share/omarchy/default/alacritty /etc/skel/.config/ || true && \
     cp -a /usr/share/omarchy/default/kitty /etc/skel/.config/ || true && \
     cp -a /usr/share/omarchy/default/foot /etc/skel/.config/ || true && \
-    cp -a /usr/share/omarchy/default/walker /etc/skel/.config/ || true && \
     cp -a /usr/share/omarchy/default/wayland-sessions/. /usr/share/wayland-sessions/ || true && \
     cp -a /usr/share/omarchy/themes /usr/share/omarchy-themes && \
     find /usr/share/omarchy/bin -type f -executable -exec ln -sf {} /usr/local/bin/ \;
 
+# User
 RUN mkdir -p /etc/sudoers.d && \
     useradd -m -G wheel,seat crashbit && \
     echo 'crashbit:changeme' | chpasswd && \
@@ -133,14 +172,25 @@ RUN mkdir -p /etc/sudoers.d && \
     echo '%wheel ALL=(ALL) ALL' > /etc/sudoers.d/wheel && \
     chmod 0440 /etc/sudoers.d/wheel
 
-RUN getent group sddm || groupadd -r sddm && \
-    getent passwd sddm || useradd -r -g sddm -d /var/lib/sddm -s /usr/bin/nologin sddm && \
+# Fix sddm user
+RUN groupadd -f sddm && \
+    id -u sddm >/dev/null 2>&1 || \
+    useradd -r \
+      -g sddm \
+      -d /var/lib/sddm \
+      -s /usr/bin/nologin \
+      sddm && \
     mkdir -p /var/lib/sddm && \
     chown -R sddm:sddm /var/lib/sddm
 
+# Enable services
 RUN systemctl enable NetworkManager && \
-    systemctl enable sddm
+    systemctl enable sddm && \
+    systemctl enable seatd && \
+    systemctl enable qemu-guest-agent
 
+# bootc metadata
 LABEL containers.bootc=1
 
+# Validate image
 RUN bootc container lint
