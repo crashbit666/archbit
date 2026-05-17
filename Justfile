@@ -13,7 +13,6 @@ build-containerfile $image_name=image_name:
 bootc *ARGS:
     sudo {{container_runtime}} run \
         --rm --privileged --pid=host \
-        -it \
         {{options}} \
         -v /dev:/dev \
         -e RUST_LOG=debug \

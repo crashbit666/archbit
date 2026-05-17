@@ -51,30 +51,28 @@ echo
 echo "==> Push to GHCR"
 podman push "$REGISTRY_IMAGE"
 
-echo
-echo "==> Generate bootable .img"
-just generate-bootable-image
-
-IMG_FILE="$(find "$PROJECT_DIR" -maxdepth 5 -type f -iname "*.img" -printf "%T@ %p\n" | sort -nr | head -n1 | cut -d' ' -f2-)"
-
-if [[ -z "$IMG_FILE" ]]; then
-  echo "ERROR: no s'ha trobat cap .img"
-  exit 1
-fi
-
-STAMP="$(date +%Y%m%d-%H%M%S)"
-DEST_FILE="$DEST_DIR/archbit-bootc-${STAMP}.img"
-
-echo
-echo "==> Copy image to $DEST_FILE"
-cp -v "$IMG_FILE" "$DEST_FILE"
-
-echo
-echo "==> Checksum"
-sha256sum "$DEST_FILE" | tee "$DEST_FILE.sha256"
-
 echo "$CURRENT_STATE" >"$STATE_FILE"
 
 echo
+echo "==> Generate bootable .img"
+if just generate-bootable-image; then
+  IMG_FILE="$(find "$PROJECT_DIR" -maxdepth 5 -type f -iname "*.img" -printf "%T@ %p\n" | sort -nr | head -n1 | cut -d' ' -f2-)"
+
+  if [[ -n "$IMG_FILE" ]]; then
+    STAMP="$(date +%Y%m%d-%H%M%S)"
+    DEST_FILE="$DEST_DIR/archbit-bootc-${STAMP}.img"
+
+    echo
+    echo "==> Copy image to $DEST_FILE"
+    cp -v "$IMG_FILE" "$DEST_FILE"
+
+    echo
+    echo "==> Checksum"
+    sha256sum "$DEST_FILE" | tee "$DEST_FILE.sha256"
+  fi
+else
+  echo "==> WARN: Bootable .img generation skipped (needs interactive terminal)"
+fi
+
+echo
 echo "==> Fet"
-echo "$DEST_FILE"
