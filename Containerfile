@@ -218,11 +218,12 @@ RUN mkdir -p /usr/lib/sysusers.d /usr/lib/tmpfiles.d && \
     printf 'g sddm - - -\nu sddm - "SDDM greeter user" /var/lib/sddm /usr/bin/nologin\n' > /usr/lib/sysusers.d/archbit-sddm.conf && \
     printf 'd /var/lib/sddm 0755 sddm sddm -\n' > /usr/lib/tmpfiles.d/archbit-sddm.conf
 
-# Enable services
+# Enable services and set graphical target
 RUN systemctl enable NetworkManager && \
     systemctl enable sddm && \
     systemctl enable seatd && \
-    systemctl enable qemu-guest-agent
+    systemctl enable qemu-guest-agent && \
+    systemctl set-default graphical.target
 
 # bootc metadata
 LABEL containers.bootc=1
