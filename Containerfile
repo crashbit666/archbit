@@ -41,7 +41,7 @@ RUN pacman -Syu --noconfirm \
 # Install bootc
 RUN --mount=type=tmpfs,dst=/tmp \
     --mount=type=tmpfs,dst=/root \
-    pacman -S --noconfirm make git rust go-md2man openssl pkgconf && \
+    pacman -S --noconfirm make git rust go-md2man && \
     git clone https://github.com/bootc-dev/bootc.git /tmp/bootc && \
     make -C /tmp/bootc bin install-all && \
     git clone https://github.com/coreos/bootupd.git /tmp/bootupd && \
@@ -54,7 +54,7 @@ RUN --mount=type=tmpfs,dst=/tmp \
     printf 'reproducible=yes\nhostonly=no\ncompress=zstd\nadd_dracutmodules+=" ostree bootc "' | \
       tee /usr/lib/dracut/dracut.conf.d/30-bootcrew-bootc-container-build.conf && \
     dracut --force "$(find /usr/lib/modules -maxdepth 1 -type d | grep -v -E "*.img" | tail -n 1)/initramfs.img" && \
-    pacman -Rns --noconfirm make git rust go-md2man openssl pkgconf && \
+    pacman -Rns --noconfirm make git rust go-md2man && \
     pacman -S --clean --noconfirm
 
 # Immutable filesystem layout
