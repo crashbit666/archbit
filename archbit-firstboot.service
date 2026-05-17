@@ -1,0 +1,19 @@
+[Unit]
+Description=Archbit Bootc First Boot Setup
+ConditionPathExists=!/var/lib/archbit/.firstboot-done
+Before=sddm.service
+After=systemd-vconsole-setup.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/archbit-firstboot
+StandardInput=tty
+StandardOutput=tty
+StandardError=tty
+TTYPath=/dev/tty1
+TTYReset=yes
+TTYVHangup=yes
+RemainAfterExit=no
+
+[Install]
+WantedBy=multi-user.target

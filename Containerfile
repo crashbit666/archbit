@@ -186,10 +186,14 @@ RUN HOME=/etc/skel \
     ln -sf /etc/skel/.local/share/omarchy/themes/hackerman/backgrounds/omarchy.png \
       /etc/skel/.config/omarchy/current/background
 
-# User
+# First boot setup (user creation, keyboard layout)
+COPY archbit-firstboot.sh /usr/bin/archbit-firstboot
+COPY archbit-firstboot.service /usr/lib/systemd/system/archbit-firstboot.service
+RUN chmod +x /usr/bin/archbit-firstboot && \
+    systemctl enable archbit-firstboot.service
+
+# Sudo and root
 RUN mkdir -p /etc/sudoers.d && \
-    useradd -m -G wheel,seat crashbit && \
-    echo 'crashbit:changeme' | chpasswd && \
     passwd -l root && \
     echo '%wheel ALL=(ALL) ALL' > /etc/sudoers.d/wheel && \
     chmod 0440 /etc/sudoers.d/wheel
