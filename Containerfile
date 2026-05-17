@@ -205,6 +205,10 @@ COPY archbit-firstboot.service /usr/lib/systemd/system/archbit-firstboot.service
 RUN chmod +x /usr/bin/archbit-firstboot && \
     systemctl enable archbit-firstboot.service
 
+# Disk installer (for installing from live USB to internal disk)
+COPY archbit-install.sh /usr/bin/archbit-install
+RUN chmod +x /usr/bin/archbit-install
+
 # Sudo and root
 RUN mkdir -p /etc/sudoers.d && \
     passwd -l root && \
