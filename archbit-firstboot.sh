@@ -1,11 +1,12 @@
 #!/bin/bash
-set -euo pipefail
 
 MARKER="/var/lib/archbit/.firstboot-done"
 
 if [[ -f "$MARKER" ]]; then
   exit 0
 fi
+
+exec > /dev/tty1 2>&1 < /dev/tty1
 
 clear
 echo ""
@@ -67,7 +68,11 @@ done
 echo ""
 echo "  Creating user '$USERNAME'..."
 
-useradd -m -G wheel,seat "$USERNAME"
+if ! useradd -m -G wheel,seat "$USERNAME"; then
+  echo "  ERROR: Failed to create user '$USERNAME'"
+  sleep 10
+  exit 1
+fi
 echo "$USERNAME:$PASSWORD" | chpasswd
 
 # Persist keyboard layout

@@ -1,8 +1,9 @@
 [Unit]
 Description=Archbit Bootc First Boot Setup
 ConditionPathExists=!/var/lib/archbit/.firstboot-done
-Before=sddm.service
-After=systemd-vconsole-setup.service
+Before=sddm.service display-manager.service getty@tty1.service
+After=systemd-vconsole-setup.service systemd-firstboot.service
+Conflicts=getty@tty1.service
 
 [Service]
 Type=oneshot
@@ -13,7 +14,7 @@ StandardError=tty
 TTYPath=/dev/tty1
 TTYReset=yes
 TTYVHangup=yes
-RemainAfterExit=no
+RemainAfterExit=yes
 
 [Install]
 WantedBy=multi-user.target
