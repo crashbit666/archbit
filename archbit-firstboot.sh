@@ -15,8 +15,27 @@ echo "  ║          ARCHBIT BOOTC — FIRST BOOT         ║"
 echo "  ╚══════════════════════════════════════════════╝"
 echo ""
 
+# Timezone
+echo "  Common timezones:"
+echo "    Europe/Madrid, Europe/London, Europe/Berlin, Europe/Paris"
+echo "    America/New_York, America/Chicago, America/Los_Angeles"
+echo "    Asia/Tokyo, Australia/Sydney, UTC"
+echo ""
+read -rp "  Timezone [UTC]: " TZ_CHOICE
+TZ_CHOICE="${TZ_CHOICE:-UTC}"
+
+if [[ -f "/usr/share/zoneinfo/$TZ_CHOICE" ]]; then
+  ln -sf "/usr/share/zoneinfo/$TZ_CHOICE" /etc/localtime
+  echo "  → Timezone set to: $TZ_CHOICE"
+else
+  echo "  → Warning: timezone '$TZ_CHOICE' not found, using UTC"
+  ln -sf /usr/share/zoneinfo/UTC /etc/localtime
+fi
+
+echo ""
+
 # Keyboard layout
-echo "  Available keyboard layouts (common):"
+echo "  Common keyboard layouts:"
 echo "    us, es, uk, fr, de, it, pt, br, ca, se, no, fi, dk, pl, cz, hu, ro"
 echo ""
 read -rp "  Keyboard layout [us]: " KB_LAYOUT
@@ -93,11 +112,13 @@ EOF
 mkdir -p /var/lib/archbit
 echo "user=$USERNAME" > "$MARKER"
 echo "layout=$KB_LAYOUT" >> "$MARKER"
+echo "timezone=$TZ_CHOICE" >> "$MARKER"
 date >> "$MARKER"
 
 echo ""
 echo "  ✓ User '$USERNAME' created"
 echo "  ✓ Keyboard layout '$KB_LAYOUT' configured"
+echo "  ✓ Timezone '$TZ_CHOICE' configured"
 echo "  ✓ Starting desktop..."
 echo ""
 sleep 2

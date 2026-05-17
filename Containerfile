@@ -192,6 +192,14 @@ RUN HOME=/etc/skel \
       /etc/skel/.config/omarchy/current/background
 
 # First boot setup (user creation, keyboard layout)
+# Pre-configure locale/timezone to prevent systemd-firstboot from triggering
+RUN ln -sf /usr/share/zoneinfo/UTC /etc/localtime && \
+    echo "LANG=en_US.UTF-8" > /etc/locale.conf && \
+    sed -i 's/^#en_US.UTF-8/en_US.UTF-8/' /etc/locale.gen && \
+    locale-gen && \
+    systemctl mask systemd-firstboot.service
+
+# First boot setup (user creation, keyboard layout, timezone)
 COPY archbit-firstboot.sh /usr/bin/archbit-firstboot
 COPY archbit-firstboot.service /usr/lib/systemd/system/archbit-firstboot.service
 RUN chmod +x /usr/bin/archbit-firstboot && \
