@@ -173,7 +173,9 @@ RUN mkdir -p \
     cp -a /usr/share/omarchy/bin /etc/skel/.local/share/omarchy/bin && \
     cp -a /usr/share/omarchy/default/wayland-sessions/. /usr/share/wayland-sessions/ && \
     find /usr/share/omarchy/bin -type f -executable -exec ln -sf {} /usr/bin/ \; && \
-    cp -a /usr/share/omarchy/default/sddm/omarchy /usr/share/sddm/themes/omarchy
+    cp -a /usr/share/omarchy/default/sddm/omarchy /usr/share/sddm/themes/omarchy && \
+    mkdir -p /etc/skel/.local/share/fonts && \
+    cp /usr/share/omarchy/config/omarchy.ttf /etc/skel/.local/share/fonts/
 
 # Set default Omarchy theme (generates waybar.css, foot.ini, etc.)
 RUN HOME=/etc/skel \
