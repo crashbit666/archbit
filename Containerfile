@@ -158,6 +158,15 @@ RUN mkdir -p \
     find /usr/share/omarchy/bin -type f -executable -exec ln -sf {} /usr/local/bin/ \; && \
     cp -a /usr/share/omarchy/default/sddm/omarchy /usr/share/sddm/themes/omarchy
 
+# Set default Omarchy theme (generates waybar.css, foot.ini, etc.)
+RUN HOME=/etc/skel \
+    OMARCHY_PATH=/etc/skel/.local/share/omarchy \
+    PATH="/etc/skel/.local/share/omarchy/bin:$PATH" \
+    OMARCHY_THEME_SKIP_BACKGROUND=1 \
+    omarchy-theme-set hackerman && \
+    ln -sf /etc/skel/.local/share/omarchy/themes/hackerman/backgrounds/omarchy.png \
+      /etc/skel/.config/omarchy/current/background
+
 # User
 RUN mkdir -p /etc/sudoers.d && \
     useradd -m -G wheel,seat crashbit && \
