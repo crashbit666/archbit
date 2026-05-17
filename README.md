@@ -36,10 +36,10 @@
 ```
    ╔══════════════════════════════════════════════════════════════╗
    ║                                                              ║
-   ║   ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐       ║
-   ║   │  Arch   │  │  bootc  │  │  OCI    │  │Hyprland │       ║
-   ║   │  Linux  │──│ Atomic  │──│ Native  │──│Omarchy  │       ║
-   ║   └─────────┘  └─────────┘  └─────────┘  └─────────┘       ║
+   ║   ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐         ║
+   ║   │  Arch   │  │  bootc  │  │  OCI    │  │Hyprland │         ║
+   ║   │  Linux  │──│ Atomic  │──│ Native  │──│Omarchy  │         ║
+   ║   └─────────┘  └─────────┘  └─────────┘  └─────────┘         ║
    ║                                                              ║
    ║   The OS is an image.        Updates are atomic.             ║
    ║   Rollbacks are instant.     The host stays clean.           ║
@@ -102,7 +102,7 @@
   │  ⚛️  Updates are atomic                     │
   │  ⏪ Rollbacks are instant                   │
   │  🧹 The host stays clean                    │
-  │  🔄 The workflow is reproducible             │
+  │  🔄 The workflow is reproducible            │
   └─────────────────────────────────────────────┘
 ```
 
@@ -193,18 +193,18 @@ A sharp, minimal, hacker-oriented desktop that feels **engineered** rather than 
 ```
   ┌─────────────────────────────────────────────────────────────┐
   │                                                             │
-  │   ┌─────────────┐   ┌──────────────┐   ┌──────────────┐   │
-  │   │  📦 IMAGE   │   │  📱 FLATPAK  │   │  🧰 DISTRO  │   │
-  │   │             │   │              │   │     BOX      │   │
-  │   │  kernel     │   │  firefox     │   │              │   │
-  │   │  firmware   │   │  vscode      │   │  dev tools   │   │
-  │   │  desktop    │   │  spotify     │   │  compilers   │   │
-  │   │  services   │   │  discord     │   │  runtimes    │   │
-  │   │  CLI tools  │   │  obs         │   │  databases   │   │
-  │   │  containers │   │  ...         │   │  ...         │   │
-  │   │             │   │              │   │              │   │
-  │   │ IMMUTABLE   │   │  SANDBOXED   │   │   MUTABLE    │   │
-  │   └─────────────┘   └──────────────┘   └──────────────┘   │
+  │   ┌─────────────┐   ┌──────────────┐   ┌──────────────┐     │
+  │   │  📦 IMAGE   │   │  📱 FLATPAK  │   │  🧰 DISTRO  │      │
+  │   │             │   │              │   │     BOX      │     │
+  │   │  kernel     │   │  firefox     │   │              │     │
+  │   │  firmware   │   │  vscode      │   │  dev tools   │     │
+  │   │  desktop    │   │  spotify     │   │  compilers   │     │
+  │   │  services   │   │  discord     │   │  runtimes    │     │
+  │   │  CLI tools  │   │  obs         │   │  databases   │     │
+  │   │  containers │   │  ...         │   │  ...         │     │
+  │   │             │   │              │   │              │     │
+  │   │ IMMUTABLE   │   │  SANDBOXED   │   │   MUTABLE    │     │
+  │   └─────────────┘   └──────────────┘   └──────────────┘     │
   │                                                             │
   │         the host stays clean, always                        │
   └─────────────────────────────────────────────────────────────┘
@@ -237,7 +237,7 @@ distrobox-enter archdev
   ├──────────────────────────────────────────────┤
   │                                              │
   │  🏗️  Arch Linux          base system         │
-  │  📦  bootc               atomic OS mgmt     │
+  │  📦  bootc               atomic OS mgmt      │
   │  🌳  ostree              deployment tree     │
   │  🔐  composefs           verified rootfs     │
   │  🥾  systemd-boot        boot manager        │
@@ -246,7 +246,7 @@ distrobox-enter archdev
   │  🖥️  Hyprland            Wayland compositor  │
   │  🎨  Omarchy             desktop layer       │
   │  📱  Flatpak             GUI apps            │
-  │  🧰  Distrobox/Toolbox   dev environments   │
+  │  🧰  Distrobox/Toolbox   dev environments    │
   │  🔊  PipeWire            audio stack         │
   │  ⌨️  uwsm                session manager     │
   │                                              │
@@ -326,10 +326,10 @@ sudo reboot           # activate it
   │  📦  GHCR (ghcr.io/crashbit666/archbit-bootc:latest)     │
   │  │                                                       │
   │  ▼                                                       │
-  │  💻  Client: bootc upgrade (timer or manual)              │
+  │  💻  Client: bootc upgrade (timer or manual)             │
   │  │                                                       │
   │  ▼                                                       │
-  │  👤  Human: decides when to reboot                        │
+  │  👤  Human: decides when to reboot                       │
   │                                                          │
   └──────────────────────────────────────────────────────────┘
 ```
