@@ -91,7 +91,9 @@ sudo podman run --rm --privileged --pid=host \
   bootc install to-disk \
     --via-loopback "/data/$(basename "$DISK_PATH")" \
     --filesystem ext4 \
-    --wipe
+    --wipe \
+    --composefs-backend \
+    --bootloader systemd
 
 # Create NVRAM copy for this VM
 NVRAM_PATH="/var/lib/libvirt/qemu/nvram/${VM_NAME}_VARS.fd"
