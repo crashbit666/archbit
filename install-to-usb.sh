@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-IMAGE="${1:-ghcr.io/crashbit666/archbit-bootc:latest}"
+IMAGE="${1:-ghcr.io/crashbit666/archbit:latest}"
 
 echo ""
 echo "  ╔══════════════════════════════════════════════╗"

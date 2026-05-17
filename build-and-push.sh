@@ -5,7 +5,7 @@ SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="${PROJECT_DIR:-$SCRIPT_DIR}"
 
 LOCAL_IMAGE="${LOCAL_IMAGE:-arch-bootc:latest}"
-REGISTRY_IMAGE="${REGISTRY_IMAGE:-ghcr.io/crashbit666/archbit-bootc:latest}"
+REGISTRY_IMAGE="${REGISTRY_IMAGE:-ghcr.io/crashbit666/archbit:latest}"
 DEST_DIR="${DEST_DIR:-$HOME/Baixades/isos}"
 STATE_DIR="${STATE_DIR:-$PROJECT_DIR/.state}"
 
@@ -60,7 +60,7 @@ if just generate-bootable-image; then
 
   if [[ -n "$IMG_FILE" ]]; then
     STAMP="$(date +%Y%m%d-%H%M%S)"
-    DEST_FILE="$DEST_DIR/archbit-bootc-${STAMP}.img"
+    DEST_FILE="$DEST_DIR/archbit-${STAMP}.img"
 
     echo
     echo "==> Copy image to $DEST_FILE"

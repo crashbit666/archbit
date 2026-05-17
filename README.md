@@ -132,7 +132,7 @@ Your OS is a container image. Pull it like any other:
 
 ```bash
 # 📦 The image
-ghcr.io/crashbit666/archbit-bootc:latest
+ghcr.io/crashbit666/archbit:latest
 ```
 
 Build it. Push it. Pull it. Deploy it. Roll it back. Version it. Diff it.
@@ -300,7 +300,7 @@ just generate-bootable-image
 ### Switch an existing install to GHCR
 
 ```bash
-sudo bootc switch ghcr.io/crashbit666/archbit-bootc:latest
+sudo bootc switch ghcr.io/crashbit666/archbit:latest
 sudo reboot
 ```
 
@@ -323,7 +323,7 @@ sudo reboot           # activate it
   │  │   or on every push to main                            │
   │  │                                                       │
   │  ▼                                                       │
-  │  📦  GHCR (ghcr.io/crashbit666/archbit-bootc:latest)     │
+  │  📦  GHCR (ghcr.io/crashbit666/archbit:latest)     │
   │  │                                                       │
   │  ▼                                                       │
   │  💻  Client: bootc upgrade (timer or manual)             │

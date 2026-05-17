@@ -88,7 +88,7 @@ CURRENT_IMAGE=$(bootc status --format json 2>/dev/null | grep -o '"image":{"imag
 
 if [[ -z "$CURRENT_IMAGE" ]]; then
   # Fallback: try to get from bootc status text output
-  CURRENT_IMAGE=$(bootc status 2>/dev/null | grep -oP 'image: \K.*' | head -1 || echo "ghcr.io/crashbit666/archbit-bootc:latest")
+  CURRENT_IMAGE=$(bootc status 2>/dev/null | grep -oP 'image: \K.*' | head -1 || echo "ghcr.io/crashbit666/archbit:latest")
 fi
 
 # Show current partitions on target

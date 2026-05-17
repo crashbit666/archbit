@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-IMAGE="${1:-ghcr.io/crashbit666/archbit-bootc:latest}"
-VM_NAME="archbit-bootc"
+IMAGE="${1:-ghcr.io/crashbit666/archbit:latest}"
+VM_NAME="archbit"
 DISK_SIZE="20G"
 RAM_KB="4194304"  # 4GB
 CPUS="2"
-DISK_PATH="${HOME}/archbit-bootc.img"
+DISK_PATH="${HOME}/archbit.img"
 
 echo ""
 echo "  ╔══════════════════════════════════════════════╗"
